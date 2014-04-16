@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map-canvas { height: 100% }
+    </style>
+  </head>
+  <body>
+    <%= yield %>
+  </body>
+  <script type='text/javascript' 
+    src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js'></script>
+  <script type="text/javascript"
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAL3AR-v8IpgsBqBnAQXUtT2jRu6QnVYEo&sensor=false">
+  </script>
+  <script type="text/javascript">
+    function initialize() {
+      var mapOptions = {
+        center: new google.maps.LatLng(33.92, -118),
+        zoom: 10
+      };
+      var map = new google.maps.Map(document.getElementById("map-canvas"),
+          mapOptions);
+
+      google.maps.event.addListener(map, 'dragend', boundsChanged)
+      google.maps.event.addListener(map, 'tilesloaded', boundsChanged)
+
+      window.map = map;
+    }
+    google.maps.event.addDomListener(window, 'load', initialize);
+
+  </script>
+
+  <script type='text/javascript'>
+
+    var polygons = []
+
+    function boundsChanged(e) {
+      getN();
+    }
+
+    function getN() {
+      var bounds = window.map.getBounds();
+
+      var coordinates = bounds.toUrlValue();
+      
+      var request = $.getJSON('/shapes', {
+        coordinates: coordinates
+      });
+
+      request.success(function(shapes){
+
+        console.log("Drawing", shapes.length, "neighborhoods")
+
+        for (var p = 0; p < polygons.length; p++) {
+          polygons[p].setMap(null);
+        };
+
+        for (var i = 0; i < shapes.length; i++) {
+          var shape = shapes[i];
+
+          if (true) {
+            var path = []
+
+            for (var j = 0; j < shape.location.coordinates[0][0].length; j++) {
+              var pair = shape.location.coordinates[0][0][j];
+              var ll = new google.maps.LatLng(pair[1], pair[0]);
+              path.push(ll);
+            };
+
+            var polygon = new google.maps.Polygon({
+              paths: path
+            });
+
+            polygons.push(polygon)
+
+            polygon.setMap(map);
+          };
+        };
+      });
+    }
+
+    // $(function(){
+    //   getN();
+    // })
+  </script>
+
+</html>

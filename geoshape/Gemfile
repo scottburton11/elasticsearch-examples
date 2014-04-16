@@ -1,0 +1,11 @@
+source "http://rubygems.org"
+
+gem 'elasticsearch'
+gem 'pry'
+gem 'json'
+gem 'georuby'
+gem 'sinatra'
+
+# Please install the gem 'dbf' to use it. `gem install dbf`
+# /usr/local/var/rbenv/versions/1.9.3-p448/lib/ruby/gems/1.9.1/gems/georuby-2.2.1/lib/geo_ruby/shp4r/dbf.rb:13:in `<module:Shp4r>': uninitialized constant GeoRuby::Shp4r::DBF (NameError)
+gem 'dbf'

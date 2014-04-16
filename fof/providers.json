@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "name": "Provider 1",
+    "reviews": [
+      {
+        "id": 12345,
+        "distance": 1
+      },
+      {
+        "id": 54321,
+        "distance": 2
+      },
+      {
+        "id": 33333,
+        "distance": 1
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Provider 2",
+    "reviews": [
+      {
+        "id": 12345,
+        "distance": 2
+      },
+      {
+        "id": 44444,
+        "distance": 2
+      },
+      {
+        "id": 33333,
+        "distance": 2
+      },
+      {
+        "id": 2121,
+        "distance": 1
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Provider 3",
+    "reviews": [
+      {
+        "id": 44444,
+        "distance": 1
+      },
+      {
+        "id": 123,
+        "distance": 1
+      },
+      {
+        "id": 33333,
+        "distance": 1
+      },
+      {
+        "id": 2121,
+        "distance": 2
+      },
+      {
+        "id": 54321,
+        "distance": 2
+      }
+    ]
+  }
+]

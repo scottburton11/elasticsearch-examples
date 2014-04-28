@@ -6,6 +6,24 @@
       html { height: 100% }
       body { height: 100%; margin: 0; padding: 0 }
       #map-canvas { height: 100% }
+      #search {
+        position: absolute;
+        left: 150px;
+        top: 35px;
+      }
+
+      #search>div {
+        display: inline-block;
+        box-sizing: border-box;
+      }
+
+      #suggestions {
+
+      }
+
+      .suggestion {
+        background-color: #eee;
+      }
     </style>
   </head>
   <body>
@@ -29,63 +47,185 @@
       google.maps.event.addListener(map, 'tilesloaded', boundsChanged)
 
       window.map = map;
+
+      var search = new Search(window.map, $("input#search_for"));
+
+      window.search = search;
+
     }
     google.maps.event.addDomListener(window, 'load', initialize);
 
   </script>
 
   <script type='text/javascript'>
-
-    var polygons = []
-
-    function boundsChanged(e) {
-      getN();
+    function boundsChanged(e){
+      return true;
     }
 
-    function getN() {
-      var bounds = window.map.getBounds();
+    // function(){
+    //   var polygons = []
 
-      var coordinates = bounds.toUrlValue();
+    //   function boundsChanged(e) {
+    //     // getNeighborhoods();
+    //   }
+
+    //   function getNeighborhoods(name) {
+    //     var bounds = window.map.getBounds();
+
+    //     var coordinates = bounds.toUrlValue();
+        
+    //     var request = $.getJSON('/shapes', {
+    //       coordinates: coordinates,
+    //       q: name
+    //     });
+
+    //     request.success(function(shapes){
+
+    //       console.log("Drawing", shapes.length, "neighborhoods")
+
+    //       for (var p = 0; p < polygons.length; p++) {
+    //         polygons[p].setMap(null);
+    //       };
+
+    //       for (var i = 0; i < shapes.length; i++) {
+    //         var shape = shapes[i];
+
+    //         if (true) {
+    //           var path = []
+
+    //           for (var j = 0; j < shape.location.coordinates[0][0].length; j++) {
+    //             var pair = shape.location.coordinates[0][0][j];
+    //             var ll = new google.maps.LatLng(pair[1], pair[0]);
+    //             path.push(ll);
+    //           };
+
+    //           var polygon = new google.maps.Polygon({
+    //             paths: path
+    //           });
+
+    //           polygons.push(polygon)
+
+    //           polygon.setMap(map);
+    //         };
+    //       };
+    //     });
+    //   }
       
-      var request = $.getJSON('/shapes', {
-        coordinates: coordinates
-      });
+    //   var handleResponse = function(response) {
+    //     drawResults(response.hits.hits);
+    //   }
 
-      request.success(function(shapes){
+    //   var handleKeyup = function(event) {
+    //     var query = $(this).val();
+    //     if (query.length > 0) {
+    //       search(query).done([logResponse, handleResponse]);
+    //     };
+    //   }
 
-        console.log("Drawing", shapes.length, "neighborhoods")
+    //   $("input#search_for").keyup(handleKeyup);
 
-        for (var p = 0; p < polygons.length; p++) {
-          polygons[p].setMap(null);
+    // }();
+    // $(function(){
+    //   getNeighborhoods();
+    // })
+  </script>
+
+  <script type="text/javascript" charset="utf-8">
+    var Search, s,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+    Search = (function(){
+
+      function Search(map, el){
+        this.map = map;
+        this.el  = el;
+        this.handleKeyup = __bind(this.handleKeyup, this);
+        this.handleResponse = __bind(this.handleResponse, this);
+        this.handleSuggestions = __bind(this.handleSuggestions, this);
+        $(document).on('keyup', el, this.handleKeyup);
+        return this;
+      };
+
+      Search.prototype.markers = [];
+
+      Search.prototype.search = function(q) {
+        return $.getJSON("/search", {
+          q: q
+        })
+      }
+      
+      Search.prototype.suggest = function(q) {
+        return $.getJSON("/suggest", {
+          q: q
+        })
+      }
+
+      Search.prototype.attributesFrom = function(result){
+        return result._source;
+      }
+
+      Search.prototype.drawResults = function(results) {
+        this.removeMarkers(this.markers);
+        for (var i = 0; i < results.length; i++) {
+          var attributes = this.attributesFrom(results[i]);
+          this.markers.push(this.dropMarker(attributes));
         };
+        return this.markers;
+      }
 
-        for (var i = 0; i < shapes.length; i++) {
-          var shape = shapes[i];
+      Search.prototype.dropMarker = function(data) {
+        var latLng = new google.maps.LatLng(data.location.coordinates[1], data.location.coordinates[0])
+        var marker = new google.maps.Marker({
+          position: latLng
+        });
+        marker.setMap(this.map);
+        return marker;
+      }
 
-          if (true) {
-            var path = []
+      Search.prototype.removeMarkers = function(markers){
+        for (var i = 0; i < markers.length; i++) {
+          markers[i].setMap(null);
+        };
+      }
 
-            for (var j = 0; j < shape.location.coordinates[0][0].length; j++) {
-              var pair = shape.location.coordinates[0][0][j];
-              var ll = new google.maps.LatLng(pair[1], pair[0]);
-              path.push(ll);
-            };
+      Search.prototype.showSuggestions = function(suggestions) {
+        $("#suggestions").empty();
+        for (var i = 0; i < suggestions.length; i++) {
+          var suggestion = suggestions[i];
+          $("#suggestions").append("<div class='suggestion'>" + suggestion.text + "</div>")
+        };
+      }
 
-            var polygon = new google.maps.Polygon({
-              paths: path
-            });
+      Search.prototype.handleSuggestions = function(response) {
+        if (response.provider.length > 0) {
+          this.showSuggestions(response.provider[0]['options'])
+        }
+      }
 
-            polygons.push(polygon)
+      Search.prototype.logResponse = function(response) {
+        console.log(response);
+      }
 
-            polygon.setMap(map);
+      Search.prototype.handleKeyup = function(event) {
+        var query = $(event.target).val();
+        if (query.length > 0) {
+          if (event.keyCode == 13) {
+            this.search(query).done([this.logResponse, this.handleResponse]);
+          } else {
+            this.suggest(query).done([this.logResponse, this.handleSuggestions])
           };
         };
-      });
-    }
+      }
 
-    // $(function(){
-    //   getN();
-    // })
+      Search.prototype.handleResponse = function(response) {
+        this.drawResults(response.hits.hits);
+      }
+  
+
+      return Search;
+    })()
+
+    
   </script>
 
 </html>

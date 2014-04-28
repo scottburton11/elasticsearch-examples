@@ -148,7 +148,7 @@ Search = (function(){
 
   Search.prototype.showResultsList = function(response) {
     var headTemplate = "<div class='meta'><ul><li>Took: <%= took %></li><li>Max: <%= hits.max_score %></li><li>Count: <%= hits.total %></li></ul></div>"
-    var resultTemplate = "<div class='result'><div class='name'><%= _source.company_name %></div><div class='score'><%= _score %></div><div class='address'><%= _source.street_address %></div></div>"
+    var resultTemplate = "<div class='result'><div class='score'><%= _score %></div><div class='name'><%= _source.company_name %></div><div class='address'><%= _source.street_address %></div></div>"
 
     var html = "";
 

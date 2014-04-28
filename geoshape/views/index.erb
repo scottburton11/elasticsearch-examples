@@ -1,12 +1,17 @@
-<div id='map-canvas'></div>
-<div id='search'>
-  <div>
-    <label for='search_for'>Search</label>
-    <input type='text' id='search_for' name='search[for]'></input>
-    <div id='suggestions'></div>
+<div id='header'>
+  <div id='search'>
+    <div>
+      <label for='search_for'>Search</label>
+      <input type='text' id='search_for' name='search[for]'></input>
+      <div id='suggestions'></div>
+    </div>
+    <div>
+      <label for='search_near'>Near</label>
+      <input type='text' id='search_near' name='search[near]'></input>
+    </div>
   </div>
-  <div>
-    <label for='search_near'>Near</label>
-    <input type='text' id='search_near' name='search[near]'></input>
-  </div>
+</div>
+<div id='main'>
+  <div id='map-canvas'></div>
+  <div id='results'></div>
 </div>
